@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue.shade100),
       ),
       // home: const MyHomePage(title: 'Visite Immobilier'),
-      home: Bienvenu(title: "Visite immobilier"),
+      home: Bienvenu(),
     );
   }
 }
