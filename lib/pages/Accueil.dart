@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:twm/pages/Inscription.dart';
+import 'package:twm/widget/footer.dart';
 
 class Accueil extends StatefulWidget {
   const Accueil({super.key});
@@ -8,8 +10,8 @@ class Accueil extends StatefulWidget {
 }
 
 class AccueilState extends State<Accueil> {
-  bool isSearching = false;
   final TextEditingController searchController = TextEditingController();
+  bool showSearchField = false;
   bool showSearchButton = false;
 
   @override
@@ -24,11 +26,13 @@ class AccueilState extends State<Accueil> {
     searchController.dispose();
     super.dispose();
   }
+
   void onSearchChanged() {
     setState(() {
       showSearchButton = searchController.text.isNotEmpty;
     });
   }
+
   void performSearch(String query) {
     print('Recherche lancée pour : "$query"');
     ScaffoldMessenger.of(context).showSnackBar(
@@ -36,60 +40,82 @@ class AccueilState extends State<Accueil> {
     );
   }
 
+  void onLoginPressed() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => Inscription()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: isSearching
-            ? TextField(
-          controller: searchController,
-          style: const TextStyle(color: Colors.white),
-          cursorColor: Colors.white,
-          decoration: const InputDecoration(
-            hintText: 'Rechercher...',
-            hintStyle: TextStyle(color: Colors.white70),
-            border: InputBorder.none,
-          ),
-          autofocus: true,
-        )
-            : const Text('Accueil'),
+        title: const Text('Accueil'),
         centerTitle: true,
         backgroundColor: Colors.blue.shade300,
         actions: [
           IconButton(
-            icon: Icon(isSearching ? Icons.close : Icons.search),
+            icon: Icon(showSearchField ? Icons.close : Icons.search),
             onPressed: () {
               setState(() {
-                isSearching = !isSearching;
-                if (!isSearching) {
+                showSearchField = !showSearchField;
+                if (!showSearchField) {
                   searchController.clear();
                   showSearchButton = false;
                 }
               });
             },
           ),
-          if (isSearching && showSearchButton)
-            TextButton(
-              onPressed: () {
-                performSearch(searchController.text);
-              },
-              style: TextButton.styleFrom(
-                backgroundColor: Colors.blue.shade100, // Fond blanc semi-transparent
-                foregroundColor: Colors.white, // Couleur du texte et des icônes (blanc)
-                shape: RoundedRectangleBorder( // Définit la forme du bouton
-                  borderRadius: BorderRadius.circular(8), // Bords arrondis de 8 pixels
-                  side: const BorderSide(color: Colors.white, width: 1), // Bordure fine blanche
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8), // Rembourrage interne
-              ),
-              child: const Text(
-                'Rechercher',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
+          IconButton(
+          icon: const Icon(Icons.account_circle),
+          onPressed: onLoginPressed,
+          ),
         ],
       ),
-      body: Container(),
+      body: Column(
+        children: [
+          if (showSearchField)
+            Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: searchController,
+                      decoration: InputDecoration(
+                        hintText: 'Rechercher...',
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  if (showSearchButton)
+                    ElevatedButton(
+                      onPressed: () {
+                        performSearch(searchController.text);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue.shade100,
+                        foregroundColor: Colors.black54,
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                      ),
+                      child: const Text('Rechercher'),
+                    ),
+                ],
+              ),
+            ),
+          Expanded(
+            child: Center(
+              child: Text('Contenu de la page d’accueil'),
+            ),
+          ),
+        ],
+      ),
+      bottomNavigationBar: const MonFooter(),
     );
   }
 }

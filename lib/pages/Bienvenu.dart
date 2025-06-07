@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:twm/pages/Accueil.dart';
+import 'package:twm/widget/footer.dart';
 
 class Bienvenu extends StatelessWidget {
   const Bienvenu({super.key});
@@ -20,26 +21,8 @@ class Bienvenu extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
 
             children: <Widget>[
-          const Icon(
-                Icons.waving_hand,
-                size: 50.0,
-                color: Colors.purple,
-              ),
-              const SizedBox(height: 15.0),
-
               const Text(
-                'Bonjour et Bienvenu sur ImmoVR !',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 28.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.deepPurple,
-                ),
-              ),
-              const SizedBox(height: 20.0),
-
-              const Text(
-                'Plongez dans une nouvelle ère de la visite immobilière grâce à notre application immersive en réalité virtuelle (VR) et en 3D. Plus besoin de vous déplacer : explorez des biens immobiliers comme si vous y étiez, directement depuis votre smartphone, tablette ou casque VR.',
+                'Plongez dans une nouvelle ère de la visite immobilière grâce à notre application immersive en réalité virtuelle (VR) et en 3D.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 16.0,
@@ -58,41 +41,18 @@ class Bienvenu extends StatelessWidget {
               const SizedBox(height: 30.0),
 
               const Text(
-                'Grâce à notre technologie innovante, gagnez du temps, affinez vos choix et vivez une expérience de recherche immobilière inédite. Que vous soyez acheteur, locataire ou simplement curieux, laissez-vous guider par une nouvelle façon de visiter.',
+                'Grâce à notre technologie innovante, gagnez du temps, affinez vos choix et vivez une expérience de recherche immobilière inédite. ',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 16.0,
                   color: Colors.black87,
                 ),
               ),
-              const SizedBox(height: 40.0),
-
-              ElevatedButton(
-                onPressed: () {
-                  // ScaffoldMessenger.of(context).showSnackBar(
-                  //   const SnackBar(content: Text('Vous avez cliqué sur Commencer !')),
-                  // );
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => Accueil()), // Remplace NouvellePage par le nom de ta page
-                  );
-                  },
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.white, backgroundColor: Colors.blue, // Couleur du texte du bouton
-                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30.0), // Bordures arrondies
-                  ),
-                ),
-                child: const Text(
-                  'Commencer l\'Exploration', // Texte du bouton mis à jour
-                  style: TextStyle(fontSize: 20.0),
-                ),
-              ),
             ],
           ),
         ),
       ),
+        bottomNavigationBar: const MonFooter()
     );
   }
 

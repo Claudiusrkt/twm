@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:twm/pages/Accueil.dart';
 import 'package:twm/pages/Bienvenu.dart';
 
 void main() {
@@ -15,8 +16,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue.shade100),
       ),
-      // home: const MyHomePage(title: 'Visite Immobilier'),
-      home: Bienvenu(),
+      home: Accueil(),
     );
   }
 }
