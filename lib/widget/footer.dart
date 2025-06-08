@@ -7,13 +7,26 @@ class MonFooter extends StatelessWidget {
   Widget build(BuildContext context) {
     return BottomAppBar(
       color: Colors.blue.shade300,
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
+      child: SizedBox(
+        height: 50.0, // Hauteur réduite ici
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: const [
-            Text('© 2025 MonApp', style: TextStyle(color: Colors.white)),
-            Icon(Icons.info, color: Colors.white),
+          children: [
+            IconButton(
+              onPressed: () {},
+              icon: const Icon(Icons.home, color: Colors.white),
+              iconSize: 50.0,
+            ),
+            IconButton(
+              onPressed: () {},
+              icon: const Icon(Icons.account_circle, color: Colors.white),
+              iconSize: 50.0,
+            ),
+            IconButton(
+              onPressed: () {},
+              icon: const Icon(Icons.info_outline, color: Colors.white),
+              iconSize: 50.0,
+            ),
           ],
         ),
       ),
