@@ -9,7 +9,7 @@ class Inscription extends StatefulWidget {
 }
 
 class _InscriptionState extends State<Inscription> {
-  final _formKey = GlobalKey<FormState>();
+  final formKey = GlobalKey<FormState>();
   final TextEditingController nomController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController mdpController = TextEditingController();
@@ -25,11 +25,11 @@ class _InscriptionState extends State<Inscription> {
   }
 
   void _validerInscription() {
-    if (_formKey.currentState!.validate()) {
+    if (formKey.currentState!.validate()) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Inscription réussie !')),
       );
-      Navigator.pop(context); // Retour à la page précédente
+      Navigator.pop(context);
     }
   }
 
@@ -43,7 +43,7 @@ class _InscriptionState extends State<Inscription> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
-          key: _formKey,
+          key: formKey,
           child: ListView(
             children: [
               TextFormField(
