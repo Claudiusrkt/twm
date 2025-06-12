@@ -1,9 +1,108 @@
 import 'package:flutter/material.dart';
-import 'package:twm/pages/Accueil.dart';
 import 'package:twm/widget/footer.dart';
 
-class Bienvenu extends StatelessWidget {
+class Bienvenu extends StatefulWidget {
   const Bienvenu({super.key});
+
+  @override
+  State<Bienvenu> createState() => _BienvenuState();
+}
+
+class _BienvenuState extends State<Bienvenu> with TickerProviderStateMixin {
+  late final List<AnimationController> _controllers;
+  late final List<Animation<Offset>> _animations;
+
+  final List<Map<String, dynamic>> _features = [
+    {
+      "icon": Icons.vrpano,
+      "title": "Visites immersives en 360°",
+      "description":
+      "Déplacez-vous librement dans les propriétés grâce à une modélisation 3D réaliste et fluide."
+    },
+    {
+      "icon": Icons.headset,
+      "title": "Compatibilité VR",
+      "description":
+      "Vivez l’expérience comme si vous étiez sur place, avec une immersion totale via votre casque VR."
+    },
+    {
+      "icon": Icons.filter_list,
+      "title": "Filtrage intelligent",
+      "description":
+      "Recherchez des biens selon vos critères (localisation, budget, type de bien, etc.)."
+    },
+    {
+      "icon": Icons.info,
+      "title": "Annotations interactives",
+      "description":
+      "Consultez en temps réel les informations clés sur chaque pièce (superficie, matériaux, orientation)."
+    },
+    {
+      "icon": Icons.favorite,
+      "title": "Favoris & partages",
+      "description":
+      "Enregistrez vos biens préférés et partagez-les facilement avec vos proches ou votre agent immobilier."
+    },
+    {
+      "icon": Icons.calendar_today,
+      "title": "Rendez-vous en ligne",
+      "description":
+      "Planifiez une visite physique ou une session en direct avec un conseiller, directement depuis l’application."
+    },
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _controllers = List.generate(
+      _features.length,
+          (i) => AnimationController(
+        vsync: this,
+        duration: const Duration(milliseconds: 500),
+      ),
+    );
+
+    _animations = _controllers
+        .map((controller) => Tween<Offset>(
+      begin: const Offset(1, 0),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(
+        parent: controller,
+        curve: Curves.easeOut,
+      ),
+    ))
+        .toList();
+
+    _startAnimations();
+  }
+
+  Future<void> _startAnimations() async {
+    for (int i = 0; i < _controllers.length; i++) {
+      await Future.delayed(const Duration(milliseconds: 300));
+      _controllers[i].forward();
+    }
+  }
+
+  @override
+  void dispose() {
+    for (var controller in _controllers) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
+  Widget _buildFeatureAnimated(int index) {
+    final feature = _features[index];
+    return SlideTransition(
+      position: _animations[index],
+      child: buildFeatureRow(
+        feature['icon'],
+        feature['title'],
+        feature['description'],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,10 +116,8 @@ class Bienvenu extends StatelessWidget {
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20.0),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
-
-            children: <Widget>[
+            children: [
               const Text(
                 'Plongez dans une nouvelle ère de la visite immobilière grâce à notre application immersive en réalité virtuelle (VR) et en 3D.',
                 textAlign: TextAlign.center,
@@ -31,15 +128,9 @@ class Bienvenu extends StatelessWidget {
               ),
               const SizedBox(height: 30.0),
 
-              buildFeatureRow(Icons.vrpano, 'Visites immersives en 360°', 'Déplacez-vous librement dans les propriétés grâce à une modélisation 3D réaliste et fluide.'),
-              buildFeatureRow(Icons.headset, 'Compatibilité VR', 'Vivez l’expérience comme si vous étiez sur place, avec une immersion totale via votre casque VR.'),
-              buildFeatureRow(Icons.filter_list, 'Filtrage intelligent', 'Recherchez des biens selon vos critères (localisation, budget, type de bien, etc.).'),
-              buildFeatureRow(Icons.info, 'Annotations interactives', 'Consultez en temps réel les informations clés sur chaque pièce (superficie, matériaux, orientation).'),
-              buildFeatureRow(Icons.favorite, 'Favoris & partages', 'Enregistrez vos biens préférés et partagez-les facilement avec vos proches ou votre agent immobilier.'),
-              buildFeatureRow(Icons.calendar_today, 'Rendez-vous en ligne', 'Planifiez une visite physique ou une session en direct avec un conseiller, directement depuis l’application.'),
+              ...List.generate(_features.length, _buildFeatureAnimated),
 
               const SizedBox(height: 30.0),
-
               const Text(
                 'Grâce à notre technologie innovante, gagnez du temps, affinez vos choix et vivez une expérience de recherche immobilière inédite. ',
                 textAlign: TextAlign.center,
@@ -52,7 +143,7 @@ class Bienvenu extends StatelessWidget {
           ),
         ),
       ),
-        bottomNavigationBar: const MonFooter()
+      bottomNavigationBar: const MonFooter(),
     );
   }
 

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:twm/pages/Accueil.dart';
-import 'package:twm/pages/Bienvenu.dart';
+import 'package:twm/pages/PublierAnnonce.dart';
 
 void main() {
   runApp(const MyApp());
@@ -16,7 +15,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue.shade100),
       ),
-      home: Accueil(),
+      home: PublierAnnonce(),
     );
   }
 }
