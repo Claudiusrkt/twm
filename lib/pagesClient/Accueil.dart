@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:twm/pages/Inscription.dart';
+import 'package:twm/pagesClient/Inscription.dart';
 class Accueil extends StatefulWidget {
   const Accueil({super.key});
 
