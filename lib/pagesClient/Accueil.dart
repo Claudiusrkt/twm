@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:twm/pages/Inscription.dart';
-import 'package:twm/widget/footer.dart';
-
 class Accueil extends StatefulWidget {
   const Accueil({super.key});
 
@@ -115,7 +113,6 @@ class AccueilState extends State<Accueil> {
           ),
         ],
       ),
-      bottomNavigationBar: const MonFooter(),
     );
   }
 }

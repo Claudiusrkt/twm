@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:twm/widget/footer.dart';
 
 class Inscription extends StatefulWidget {
   const Inscription({super.key});
@@ -92,7 +91,6 @@ class _InscriptionState extends State<Inscription> {
           ),
         ),
       ),
-        bottomNavigationBar: const MonFooter()
     );
   }
 }
