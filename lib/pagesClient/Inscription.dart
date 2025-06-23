@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class Inscription extends StatefulWidget {
   const Inscription({super.key});
@@ -20,19 +22,48 @@ class _InscriptionState extends State<Inscription> {
   void dispose() {
     nomController.dispose();
     emailController.dispose();
+    telController.dispose();
+    roleController.dispose();
     mdpController.dispose();
     confirmMdpController.dispose();
-    roleController.dispose();
-    telController.dispose();
     super.dispose();
   }
 
-  void _validerInscription() {
+  Future<void> _validerInscription() async {
     if (formKey.currentState!.validate()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Inscription réussie !')),
-      );
-      Navigator.pop(context);
+      final role = roleController.text.trim();
+      final baseUrl = "http://10.0.2.2:3000/api/";
+
+      final endpoint = role == "Agent" ? "agents" : "users";
+      final url = Uri.parse("$baseUrl$endpoint");
+
+      try {
+        final response = await http.post(
+          url,
+          headers: {"Content-Type": "application/json"},
+          body: jsonEncode({
+            "fullName": nomController.text.trim(),
+            "email": emailController.text.trim(),
+            "password": mdpController.text,
+            "phone": telController.text.trim(),
+          }),
+        );
+
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Inscription réussie !')),
+          );
+          Navigator.pop(context);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Erreur serveur : ${response.statusCode}\n${response.body}')),
+          );
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erreur de connexion : $e')),
+        );
+      }
     }
   }
 
@@ -67,7 +98,6 @@ class _InscriptionState extends State<Inscription> {
                   return null;
                 },
               ),
-
               const SizedBox(height: 12),
               TextFormField(
                 controller: emailController,
@@ -89,7 +119,6 @@ class _InscriptionState extends State<Inscription> {
                   return null;
                 },
               ),
-
               const SizedBox(height: 12),
               TextFormField(
                 controller: telController,
@@ -174,7 +203,6 @@ class _InscriptionState extends State<Inscription> {
                   return null;
                 },
               ),
-
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: _validerInscription,

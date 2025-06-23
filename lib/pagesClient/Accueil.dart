@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:twm/pagesClient/Inscription.dart';
+import 'package:twm/pages/LoginPage.dart';
+import 'package:twm/pages/EtreConnecte.dart';
+import 'package:twm/model/utilisateur.dart';
 
 class Accueil extends StatefulWidget {
   const Accueil({super.key});
@@ -12,6 +14,8 @@ class AccueilState extends State<Accueil> {
   final TextEditingController searchController = TextEditingController();
   bool showSearchField = false;
   bool showSearchButton = false;
+
+  Utilisateur? utilisateurConnecte;
 
   @override
   void initState() {
@@ -39,11 +43,20 @@ class AccueilState extends State<Accueil> {
     );
   }
 
-  void onLoginPressed() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => Inscription()),
-    );
+  void onAccountPressed() {
+    if (utilisateurConnecte != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => EtreConnecte(utilisateur: utilisateurConnecte!),
+        ),
+      );
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginPage()),
+      );
+    }
   }
 
   @override
@@ -67,8 +80,8 @@ class AccueilState extends State<Accueil> {
             },
           ),
           IconButton(
-          icon: const Icon(Icons.account_circle),
-          onPressed: onLoginPressed,
+            icon: const Icon(Icons.account_circle),
+            onPressed: onAccountPressed,
           ),
         ],
       ),
