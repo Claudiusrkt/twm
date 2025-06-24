@@ -1,21 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:twm/pages/LoginPage.dart';
 import 'package:twm/pages/EtreConnecte.dart';
-import 'package:twm/model/utilisateur.dart';
+import '../providers/UserProvider.dart';
 
 class Accueil extends StatefulWidget {
   const Accueil({super.key});
 
   @override
-  State<Accueil> createState() => AccueilState();
+  State<Accueil> createState() => _AccueilState();
 }
 
-class AccueilState extends State<Accueil> {
+class _AccueilState extends State<Accueil> {
   final TextEditingController searchController = TextEditingController();
   bool showSearchField = false;
   bool showSearchButton = false;
-
-  Utilisateur? utilisateurConnecte;
 
   @override
   void initState() {
@@ -37,18 +36,19 @@ class AccueilState extends State<Accueil> {
   }
 
   void performSearch(String query) {
-    print('Recherche lancée pour : "$query"');
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Recherche lancée pour : "$query"')),
     );
   }
 
   void onAccountPressed() {
-    if (utilisateurConnecte != null) {
+    final utilisateur = Provider.of<UserProvider>(context, listen: false).utilisateur;
+
+    if (utilisateur != null) {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => EtreConnecte(utilisateur: utilisateurConnecte!),
+          builder: (context) => EtreConnecte(utilisateur: utilisateur),
         ),
       );
     } else {
@@ -61,9 +61,13 @@ class AccueilState extends State<Accueil> {
 
   @override
   Widget build(BuildContext context) {
+    final utilisateur = Provider.of<UserProvider>(context).utilisateur;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Accueil'),
+        title: Text(utilisateur != null
+            ? 'Bienvenue ${utilisateur.fullName}'
+            : 'Accueil'),
         centerTitle: true,
         backgroundColor: Colors.blue.shade300,
         actions: [

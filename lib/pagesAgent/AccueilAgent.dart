@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:twm/pagesClient/Inscription.dart';
+import 'package:provider/provider.dart';
+
+import '../model/utilisateur.dart';
+import '../pages/EtreConnecte.dart';
+import '../pages/LoginPage.dart';
+import '../providers/UserProvider.dart';
+
 class AccueilAgent extends StatefulWidget {
   const AccueilAgent({super.key});
 
   @override
-  State<AccueilAgent> createState() => AccueilState();
+  State<AccueilAgent> createState() => _AccueilAgentState();
 }
 
-class AccueilState extends State<AccueilAgent > {
+class _AccueilAgentState extends State<AccueilAgent> {
   final TextEditingController searchController = TextEditingController();
   bool showSearchField = false;
   bool showSearchButton = false;
@@ -32,24 +38,38 @@ class AccueilState extends State<AccueilAgent > {
   }
 
   void performSearch(String query) {
-    print('Recherche lancée pour : "$query"');
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Recherche lancée pour : "$query"')),
     );
   }
 
   void onLoginPressed() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => Inscription()),
-    );
+    final utilisateur = Provider.of<UserProvider>(context, listen: false).utilisateur;
+
+    if (utilisateur != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => EtreConnecte(utilisateur: utilisateur),
+        ),
+      );
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginPage()),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final utilisateur = Provider.of<UserProvider>(context).utilisateur;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Accueil'),
+        title: Text(utilisateur != null
+            ? 'Agent : ${utilisateur.fullName}'
+            : 'Accueil Agent'),
         centerTitle: true,
         backgroundColor: Colors.blue.shade300,
         actions: [
@@ -108,7 +128,7 @@ class AccueilState extends State<AccueilAgent > {
             ),
           Expanded(
             child: Center(
-              child: Text('Contenu de la page d’accueil'),
+              child: Text('Contenu de la page d’accueil Agent'),
             ),
           ),
         ],
