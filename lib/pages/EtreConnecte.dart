@@ -45,7 +45,7 @@ class _EtreConnecteState extends State<EtreConnecte> {
 
   void enregistrerModifications(BuildContext context) {
     final updatedUser = Utilisateur(
-
+      id: widget.utilisateur.id,  // Important de garder l'id
       fullName: fullNameController.text,
       email: emailController.text,
       phone: phoneController.text,
@@ -93,6 +93,7 @@ class _EtreConnecteState extends State<EtreConnecte> {
                 TextField(
                   controller: emailController,
                   decoration: const InputDecoration(labelText: 'Email'),
+                  enabled: false, // Optionnel : désactive modification de l'email
                 ),
                 const SizedBox(height: 10),
                 TextField(

@@ -5,6 +5,7 @@ class Bien {
   final double price;
   final double surface;
   final String type;
+  final int agentId;
 
   Bien({
     required this.id,
@@ -13,6 +14,7 @@ class Bien {
     required this.price,
     required this.surface,
     required this.type,
+    required this.agentId,
   });
 
   factory Bien.fromJson(Map<String, dynamic> json) {
@@ -20,9 +22,10 @@ class Bien {
       id: json['id'],
       title: json['title'],
       description: json['description'],
-      price: json['price'].toDouble(),
-      surface: json['surface'].toDouble(),
+      price: (json['price'] as num).toDouble(),
+      surface: (json['surface'] as num).toDouble(),
       type: json['type'],
+      agentId: json['agentId'],
     );
   }
 }

@@ -69,13 +69,20 @@ class _AccueilAgentState extends State<AccueilAgent> {
   }
 
   Future<void> fetchAnnonces() async {
+    final utilisateur = Provider.of<UserProvider>(context, listen: false).utilisateur;
+
+    if (utilisateur == null) return;
+
     try {
-      final response = await http.get(Uri.parse('http://127.0.0.1:3000/api/properties'));
+      final response = await http.get(Uri.parse('http://10.0.2.2:3000/api/properties'));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as List;
         setState(() {
-          annonces = data.map((json) => Bien.fromJson(json)).toList();
+          annonces = data
+              .map((json) => Bien.fromJson(json))
+              .where((annonce) => annonce.agentId == utilisateur.id)
+              .toList();
           isLoading = false;
         });
       } else {
@@ -120,7 +127,7 @@ class _AccueilAgentState extends State<AccueilAgent> {
     if (confirm == true) {
       try {
         final response = await http.delete(
-          Uri.parse('http://127.0.0.1:3000/api/properties/${annonce.id}'),
+          Uri.parse('http://10.0.2.2:3000/api/properties/${annonce.id}'),
         );
         if (response.statusCode == 200) {
           setState(() {
@@ -241,11 +248,18 @@ class _AccueilAgentState extends State<AccueilAgent> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
+        onPressed: () async {
+          final result = await Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const PublierAnnonce()),
           );
+
+          if (result == true) {
+            fetchAnnonces();
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Nouvelle annonce ajoutée')),
+            );
+          }
         },
         child: const Icon(Icons.add),
         tooltip: 'Ajouter une annonce',

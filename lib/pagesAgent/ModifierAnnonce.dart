@@ -30,33 +30,51 @@ class _ModifierAnnonceState extends State<ModifierAnnonce> {
     typeController = TextEditingController(text: widget.annonce.type);
   }
 
+  @override
+  void dispose() {
+    titleController.dispose();
+    descriptionController.dispose();
+    priceController.dispose();
+    surfaceController.dispose();
+    typeController.dispose();
+    super.dispose();
+  }
+
   Future<void> modifierAnnonce() async {
-    final url = Uri.parse("http://127.0.0.1:3000/api/properties/${widget.annonce.id}");
+    if (!_formKey.currentState!.validate()) return;
+
+    final url = Uri.parse("http://10.0.2.2:3000/api/properties/${widget.annonce.id}");
     final body = jsonEncode({
-      'title': titleController.text,
-      'description': descriptionController.text,
-      'price': int.parse(priceController.text),
-      'surface': double.parse(surfaceController.text),
-      'type': typeController.text,
+      'title': titleController.text.trim(),
+      'description': descriptionController.text.trim(),
+      'price': double.tryParse(priceController.text.trim()) ?? 0.0,
+      'surface': double.tryParse(surfaceController.text.trim()) ?? 0.0,
+      'type': typeController.text.trim(),
     });
 
     try {
-      final response = await http.put(url,
-          headers: {"Content-Type": "application/json"}, body: body);
+      final response = await http.put(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: body,
+      );
 
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Annonce modifiée')));
-        Navigator.pop(context, true); // renvoie un succès
+          const SnackBar(content: Text('Annonce modifiée')),
+        );
+        Navigator.pop(context, true);
       } else {
         print("Erreur modification : ${response.statusCode}");
         ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Échec de la modification")));
+          const SnackBar(content: Text("Échec de la modification")),
+        );
       }
     } catch (e) {
       print("Erreur : $e");
       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Erreur réseau")));
+        const SnackBar(content: Text("Erreur réseau")),
+      );
     }
   }
 
@@ -68,35 +86,53 @@ class _ModifierAnnonceState extends State<ModifierAnnonce> {
         padding: const EdgeInsets.all(16),
         child: Form(
           key: _formKey,
-          child: Column(children: [
-            TextFormField(
-              controller: titleController,
-              decoration: const InputDecoration(labelText: 'Titre'),
-            ),
-            TextFormField(
-              controller: descriptionController,
-              decoration: const InputDecoration(labelText: 'Description'),
-            ),
-            TextFormField(
-              controller: priceController,
-              decoration: const InputDecoration(labelText: 'Prix'),
-              keyboardType: TextInputType.number,
-            ),
-            TextFormField(
-              controller: surfaceController,
-              decoration: const InputDecoration(labelText: 'Surface'),
-              keyboardType: TextInputType.number,
-            ),
-            TextFormField(
-              controller: typeController,
-              decoration: const InputDecoration(labelText: 'Type'),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: modifierAnnonce,
-              child: const Text("Enregistrer les modifications"),
-            ),
-          ]),
+          child: ListView(
+            children: [
+              TextFormField(
+                controller: titleController,
+                decoration: const InputDecoration(labelText: 'Titre'),
+                validator: (value) =>
+                value == null || value.isEmpty ? 'Champ requis' : null,
+              ),
+              TextFormField(
+                controller: descriptionController,
+                decoration: const InputDecoration(labelText: 'Description'),
+                validator: (value) =>
+                value == null || value.isEmpty ? 'Champ requis' : null,
+              ),
+              TextFormField(
+                controller: priceController,
+                decoration: const InputDecoration(labelText: 'Prix'),
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                validator: (value) {
+                  if (value == null || value.isEmpty) return 'Champ requis';
+                  if (double.tryParse(value) == null) return 'Nombre décimal requis';
+                  return null;
+                },
+              ),
+              TextFormField(
+                controller: surfaceController,
+                decoration: const InputDecoration(labelText: 'Surface'),
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                validator: (value) {
+                  if (value == null || value.isEmpty) return 'Champ requis';
+                  if (double.tryParse(value) == null) return 'Nombre décimal requis';
+                  return null;
+                },
+              ),
+              TextFormField(
+                controller: typeController,
+                decoration: const InputDecoration(labelText: 'Type'),
+                validator: (value) =>
+                value == null || value.isEmpty ? 'Champ requis' : null,
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: modifierAnnonce,
+                child: const Text("Enregistrer les modifications"),
+              ),
+            ],
+          ),
         ),
       ),
     );
