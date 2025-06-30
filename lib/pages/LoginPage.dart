@@ -30,7 +30,7 @@ class _LoginPageState extends State<LoginPage> {
       final motDePasse = motDePasseController.text;
 
 
-      final baseUrl = "http://10.0.2.2:3000/api/auth/login";
+      final baseUrl = "http://192.168.1.176:3000/api/auth/login";
       // final baseUrl = "http://10.192.23.164:3000/api/auth/login";
 
       final url = Uri.parse(baseUrl);

@@ -7,6 +7,7 @@ import 'package:twm/pages/LoginPage.dart';
 import 'package:twm/pages/EtreConnecte.dart';
 import '../providers/UserProvider.dart';
 import '../model/bien.dart';
+import 'EnvoyeRdv.dart';
 
 class Accueil extends StatefulWidget {
   const Accueil({super.key});
@@ -20,6 +21,7 @@ class _AccueilState extends State<Accueil> {
   bool showSearchField = false;
   bool showSearchButton = false;
   List<Bien> annonces = [];
+  final Set<int> favoris = {};
   bool isLoading = true;
 
   @override
@@ -27,6 +29,11 @@ class _AccueilState extends State<Accueil> {
     super.initState();
     searchController.addListener(onSearchChanged);
     fetchAnnonces();
+
+    final user = Provider.of<UserProvider>(context, listen: false).utilisateur;
+    if (user != null) {
+      fetchFavoris(user.id);
+    }
   }
 
   @override
@@ -46,7 +53,6 @@ class _AccueilState extends State<Accueil> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Recherche lancée pour : "$query"')),
     );
-    // Ici tu peux filtrer la liste annonces selon query si tu veux
   }
 
   void onAccountPressed() {
@@ -92,15 +98,116 @@ class _AccueilState extends State<Accueil> {
     }
   }
 
+  Future<void> fetchFavoris(int userId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('http://10.0.2.2:3000/api/favorites?userId=$userId'),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body) as List;
+        setState(() {
+          favoris.clear();
+          for (var fav in data) {
+            favoris.add(fav['propertyId']);
+          }
+        });
+      }
+    } catch (e) {
+      print('Erreur lors du chargement des favoris : $e');
+    }
+  }
+
+  Future<void> toggleFavoris(int propertyId) async {
+    final user = Provider.of<UserProvider>(context, listen: false).utilisateur;
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Connectez-vous pour gérer les favoris.')),
+      );
+      return;
+    }
+
+    final alreadyFavori = favoris.contains(propertyId);
+    final url = Uri.parse('http://10.0.2.2:3000/api/favorites');
+
+    try {
+      http.Response response;
+      if (alreadyFavori) {
+        response = await http.delete(
+          url,
+          body: jsonEncode({
+            'userId': user.id,
+            'propertyId': propertyId,
+          }),
+          headers: {'Content-Type': 'application/json'},
+        );
+      } else {
+        response = await http.post(
+          url,
+          body: jsonEncode({
+            'userId': user.id,
+            'propertyId': propertyId,
+          }),
+          headers: {'Content-Type': 'application/json'},
+        );
+      }
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        setState(() {
+          if (alreadyFavori) {
+            favoris.remove(propertyId);
+          } else {
+            favoris.add(propertyId);
+          }
+        });
+      } else {
+        print('Erreur lors de la mise à jour des favoris : ${response.body}');
+      }
+    } catch (e) {
+      print('Erreur toggleFavoris : $e');
+    }
+  }
+
+  void lancer3D(Bien annonce) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text('Visualisation 3D'),
+        content: Text('Visualisation 3D de "${annonce.title}" (non disponible).'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Fermer')),
+        ],
+      ),
+    );
+  }
+
+  void contacterAgent(Bien annonce) {
+    if (annonce.agentId != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => EnvoyerRdvPage(
+            propertyId: annonce.id,
+            agentId: annonce.agentId!,
+          ),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("L'agent de ce bien est inconnu.")),
+      );
+    }
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
     final utilisateur = Provider.of<UserProvider>(context).utilisateur;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(utilisateur != null
-            ? 'Bienvenue ${utilisateur.fullName}'
-            : 'Accueil'),
+        title: Text(utilisateur != null ? 'Bienvenue ${utilisateur.fullName}' : 'Accueil'),
         centerTitle: true,
         backgroundColor: Colors.blue.shade300,
         actions: [
@@ -144,9 +251,7 @@ class _AccueilState extends State<Accueil> {
                   const SizedBox(width: 8),
                   if (showSearchButton)
                     ElevatedButton(
-                      onPressed: () {
-                        performSearch(searchController.text);
-                      },
+                      onPressed: () => performSearch(searchController.text),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue.shade100,
                         foregroundColor: Colors.black54,
@@ -173,14 +278,47 @@ class _AccueilState extends State<Accueil> {
               itemCount: annonces.length,
               itemBuilder: (context, index) {
                 final annonce = annonces[index];
+                final isFavori = favoris.contains(annonce.id);
+
                 return Card(
                   margin: const EdgeInsets.all(8.0),
-                  child: ListTile(
-                    title: Text(annonce.title),
-                    subtitle: Text(
-                      '${annonce.description}\nPrix: ${annonce.price} Ar\nSurface: ${annonce.surface} m²\nType: ${annonce.type}',
-                    ),
-                    isThreeLine: true,
+                  child: Column(
+                    children: [
+                      ListTile(
+                        title: Text(annonce.title),
+                        subtitle: Text(
+                          '${annonce.description}\nPrix: ${annonce.price} Ar\nSurface: ${annonce.surface} m²\nType: ${annonce.type}',
+                        ),
+                        isThreeLine: true,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            left: 8.0, right: 8.0, bottom: 10.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            IconButton(
+                              icon: Icon(
+                                isFavori ? Icons.favorite : Icons.favorite_border,
+                                color: isFavori ? Colors.red : Colors.grey,
+                              ),
+                              onPressed: () => toggleFavoris(annonce.id),
+                              tooltip: 'Ajouter aux favoris',
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.threed_rotation, color: Colors.blue),
+                              onPressed: () => lancer3D(annonce),
+                              tooltip: 'Vue 3D',
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.phone, color: Colors.green),
+                              onPressed: () => contacterAgent(annonce),
+                              tooltip: 'Contacter l\'agent',
+                            ),
+                          ],
+                        ),
+                      )
+                    ],
                   ),
                 );
               },

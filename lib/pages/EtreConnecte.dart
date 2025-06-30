@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
 import 'package:twm/model/utilisateur.dart';
 import 'package:twm/pages/LoginPage.dart';
 import '../providers/UserProvider.dart';
@@ -17,6 +20,8 @@ class _EtreConnecteState extends State<EtreConnecte> {
   late TextEditingController fullNameController;
   late TextEditingController emailController;
   late TextEditingController phoneController;
+
+  bool isSaving = false;
 
   @override
   void initState() {
@@ -43,20 +48,55 @@ class _EtreConnecteState extends State<EtreConnecte> {
     );
   }
 
-  void enregistrerModifications(BuildContext context) {
+  Future<void> enregistrerModifications(BuildContext context) async {
+    setState(() {
+      isSaving = true;
+    });
+
     final updatedUser = Utilisateur(
-      id: widget.utilisateur.id,  // Important de garder l'id
+      id: widget.utilisateur.id,
       fullName: fullNameController.text,
       email: emailController.text,
       phone: phoneController.text,
       role: widget.utilisateur.role,
     );
 
-    Provider.of<UserProvider>(context, listen: false).setUtilisateur(updatedUser);
+    // Construire l’URL selon le rôle
+    final String baseUrl = 'http://10.0.2.2:3000/api';
+    final String url = widget.utilisateur.role == 'agent'
+        ? '$baseUrl/agents/${updatedUser.id}'
+        : '$baseUrl/users/${updatedUser.id}';
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Modifications enregistrées')),
-    );
+    try {
+      final response = await http.put(
+        Uri.parse(url),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'fullName': updatedUser.fullName,
+          'phone': updatedUser.phone,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        Provider.of<UserProvider>(context, listen: false).setUtilisateur(updatedUser);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Modifications enregistrées avec succès')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Échec de la mise à jour : ${response.statusCode}')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erreur de connexion : $e')),
+      );
+    }
+
+    setState(() {
+      isSaving = false;
+    });
   }
 
   @override
@@ -93,7 +133,7 @@ class _EtreConnecteState extends State<EtreConnecte> {
                 TextField(
                   controller: emailController,
                   decoration: const InputDecoration(labelText: 'Email'),
-                  enabled: false, // Optionnel : désactive modification de l'email
+                  enabled: false,
                 ),
                 const SizedBox(height: 10),
                 TextField(
@@ -102,8 +142,10 @@ class _EtreConnecteState extends State<EtreConnecte> {
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton(
-                  onPressed: () => enregistrerModifications(context),
-                  child: const Text('Enregistrer les modifications'),
+                  onPressed: isSaving ? null : () => enregistrerModifications(context),
+                  child: isSaving
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text('Enregistrer les modifications'),
                 ),
                 const SizedBox(height: 10),
                 Text(
