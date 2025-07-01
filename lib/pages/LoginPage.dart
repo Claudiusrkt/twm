@@ -62,7 +62,7 @@ class _LoginPageState extends State<LoginPage> {
 
           if (role.toLowerCase() == 'agent') {
             try{
-              final urlGetUser=Uri.parse("http://10.0.2.2:3000/api/agents/$id");
+              final urlGetUser=Uri.parse("http://192.168.1.176:3000/api/agents/$id");
               final rst = await http.get(
                   urlGetUser,
                   headers: {"Content-Type": "application/json"}
@@ -85,7 +85,7 @@ class _LoginPageState extends State<LoginPage> {
             print("hatreto metyyyyyyyyyyyyyyyyyyyyyyhfgsdjgfskjahfsdakjghsdkjdddddddddddddddddddd");
           } else {
             try{
-              final urlGetUser=Uri.parse("http://10.0.2.2:3000/api/users/$id");
+              final urlGetUser=Uri.parse("http://192.168.1.176:3000/api/users/$id");
               final rst = await http.get(
                   urlGetUser,
                   headers: {"Content-Type": "application/json"}

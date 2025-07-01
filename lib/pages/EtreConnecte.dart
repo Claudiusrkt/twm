@@ -62,7 +62,7 @@ class _EtreConnecteState extends State<EtreConnecte> {
     );
 
     // Construire l’URL selon le rôle
-    final String baseUrl = 'http://10.0.2.2:3000/api';
+    final String baseUrl = 'http://192.168.1.176:3000/api';
     final String url = widget.utilisateur.role == 'agent'
         ? '$baseUrl/agents/${updatedUser.id}'
         : '$baseUrl/users/${updatedUser.id}';

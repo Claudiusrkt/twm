@@ -45,7 +45,7 @@ class _EnvoyerRdvPageState extends State<EnvoyerRdvPage> {
 
   Future<void> fetchPropertyAgentId(int propertyId) async {
     try {
-      final url = Uri.parse('http://10.0.2.2:3000/api/properties/$propertyId');
+      final url = Uri.parse('http://192.168.1.176:3000/api/properties/$propertyId');
       final response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -84,7 +84,7 @@ class _EnvoyerRdvPageState extends State<EnvoyerRdvPage> {
 
     setState(() => _isLoading = true);
 
-    final url = Uri.parse('http://10.0.2.2:3000/api/appointments');
+    final url = Uri.parse('http://192.168.1.176:3000/api/appointments');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},

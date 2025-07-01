@@ -43,7 +43,7 @@ class _ModifierAnnonceState extends State<ModifierAnnonce> {
   Future<void> modifierAnnonce() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final url = Uri.parse("http://10.0.2.2:3000/api/properties/${widget.annonce.id}");
+    final url = Uri.parse("http://192.168.1.176:3000/api/properties/${widget.annonce.id}");
     final body = jsonEncode({
       'title': titleController.text.trim(),
       'description': descriptionController.text.trim(),

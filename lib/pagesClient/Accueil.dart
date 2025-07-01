@@ -5,6 +5,7 @@ import 'dart:convert';
 
 import 'package:twm/pages/LoginPage.dart';
 import 'package:twm/pages/EtreConnecte.dart';
+import '../pages/ArViewer.dart';
 import '../providers/UserProvider.dart';
 import '../model/bien.dart';
 import 'EnvoyeRdv.dart';
@@ -75,7 +76,7 @@ class _AccueilState extends State<Accueil> {
 
   Future<void> fetchAnnonces() async {
     try {
-      final response = await http.get(Uri.parse('http://10.0.2.2:3000/api/properties'));
+      final response = await http.get(Uri.parse('http://192.168.1.176:3000/api/properties'));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as List;
@@ -101,7 +102,7 @@ class _AccueilState extends State<Accueil> {
   Future<void> fetchFavoris(int userId) async {
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:3000/api/favorites?userId=$userId'),
+        Uri.parse('http://192.168.1.176:3000/api/favorites?userId=$userId'),
       );
 
       if (response.statusCode == 200) {
@@ -128,7 +129,7 @@ class _AccueilState extends State<Accueil> {
     }
 
     final alreadyFavori = favoris.contains(propertyId);
-    final url = Uri.parse('http://10.0.2.2:3000/api/favorites');
+    final url = Uri.parse('http://192.168.1.176:3000/api/favorites');
 
     try {
       http.Response response;
@@ -169,17 +170,14 @@ class _AccueilState extends State<Accueil> {
   }
 
   void lancer3D(Bien annonce) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: Text('Visualisation 3D'),
-        content: Text('Visualisation 3D de "${annonce.title}" (non disponible).'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Fermer')),
-        ],
-      ),
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const ARViewPage()),
     );
   }
+
+
+
 
   void contacterAgent(Bien annonce) {
     if (annonce.agentId != null) {

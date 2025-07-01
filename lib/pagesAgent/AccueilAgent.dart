@@ -74,7 +74,7 @@ class _AccueilAgentState extends State<AccueilAgent> {
     if (utilisateur == null) return;
 
     try {
-      final response = await http.get(Uri.parse('http://10.0.2.2:3000/api/properties'));
+      final response = await http.get(Uri.parse('http://192.168.1.176:3000/api/properties'));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as List;
@@ -127,7 +127,7 @@ class _AccueilAgentState extends State<AccueilAgent> {
     if (confirm == true) {
       try {
         final response = await http.delete(
-          Uri.parse('http://10.0.2.2:3000/api/properties/${annonce.id}'),
+          Uri.parse('http://192.168.1.176:3000/api/properties/${annonce.id}'),
         );
         if (response.statusCode == 200) {
           setState(() {

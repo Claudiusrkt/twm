@@ -35,7 +35,7 @@ class _PublierAnnonceState extends State<PublierAnnonce> {
       return;
     }
 
-    final url = Uri.parse("http://10.0.2.2:3000/api/properties");
+    final url = Uri.parse("http://192.168.1.176:3000/api/properties");
 
     final body = jsonEncode({
       "title": _titleController.text.trim(),
