@@ -9,6 +9,7 @@ import '../providers/UserProvider.dart';
 import '../model/bien.dart';
 import 'PublierAnnonce.dart';
 import 'ModifierAnnonce.dart';
+import 'RdvAgentPage.dart';
 
 class AccueilAgent extends StatefulWidget {
   const AccueilAgent({super.key});
@@ -18,36 +19,13 @@ class AccueilAgent extends StatefulWidget {
 }
 
 class _AccueilAgentState extends State<AccueilAgent> {
-  final TextEditingController searchController = TextEditingController();
-  bool showSearchField = false;
-  bool showSearchButton = false;
   List<Bien> annonces = [];
   bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    searchController.addListener(onSearchChanged);
     fetchAnnonces();
-  }
-
-  @override
-  void dispose() {
-    searchController.removeListener(onSearchChanged);
-    searchController.dispose();
-    super.dispose();
-  }
-
-  void onSearchChanged() {
-    setState(() {
-      showSearchButton = searchController.text.isNotEmpty;
-    });
-  }
-
-  void performSearch(String query) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Recherche lancée pour : "$query"')),
-    );
   }
 
   void onLoginPressed() {
@@ -64,6 +42,18 @@ class _AccueilAgentState extends State<AccueilAgent> {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => const LoginPage()),
+      );
+    }
+  }
+
+  void onNotificationsPressed() {
+    final utilisateur = Provider.of<UserProvider>(context, listen: false).utilisateur;
+    if (utilisateur != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => RdvAgentPage(agentId: utilisateur.id),
+        ),
       );
     }
   }
@@ -158,16 +148,8 @@ class _AccueilAgentState extends State<AccueilAgent> {
         backgroundColor: Colors.blue.shade300,
         actions: [
           IconButton(
-            icon: Icon(showSearchField ? Icons.close : Icons.search),
-            onPressed: () {
-              setState(() {
-                showSearchField = !showSearchField;
-                if (!showSearchField) {
-                  searchController.clear();
-                  showSearchButton = false;
-                }
-              });
-            },
+            icon: const Icon(Icons.notifications),
+            onPressed: onNotificationsPressed,
           ),
           IconButton(
             icon: const Icon(Icons.account_circle),
@@ -175,77 +157,38 @@ class _AccueilAgentState extends State<AccueilAgent> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          if (showSearchField)
-            Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Row(
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : annonces.isEmpty
+          ? const Center(child: Text('Aucune annonce publiée'))
+          : ListView.builder(
+        itemCount: annonces.length,
+        itemBuilder: (context, index) {
+          final annonce = annonces[index];
+          return Card(
+            margin: const EdgeInsets.all(8.0),
+            child: ListTile(
+              title: Text(annonce.title),
+              subtitle: Text(
+                '${annonce.description}\nPrix: ${annonce.price} Ar\nSurface: ${annonce.surface} m²\nType: ${annonce.type}',
+              ),
+              isThreeLine: true,
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Expanded(
-                    child: TextField(
-                      controller: searchController,
-                      decoration: InputDecoration(
-                        hintText: 'Rechercher...',
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                    ),
+                  IconButton(
+                    icon: const Icon(Icons.edit, color: Colors.blue),
+                    onPressed: () => modifierAnnonce(annonce),
                   ),
-                  const SizedBox(width: 8),
-                  if (showSearchButton)
-                    ElevatedButton(
-                      onPressed: () {
-                        performSearch(searchController.text);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue.shade100,
-                        foregroundColor: Colors.black54,
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-                      ),
-                      child: const Text('Rechercher'),
-                    ),
+                  IconButton(
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                    onPressed: () => supprimerAnnonce(annonce),
+                  ),
                 ],
               ),
             ),
-          Expanded(
-            child: isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : annonces.isEmpty
-                ? const Center(child: Text('Aucune annonce publiée'))
-                : ListView.builder(
-              itemCount: annonces.length,
-              itemBuilder: (context, index) {
-                final annonce = annonces[index];
-                return Card(
-                  margin: const EdgeInsets.all(8.0),
-                  child: ListTile(
-                    title: Text(annonce.title),
-                    subtitle: Text(
-                      '${annonce.description}\nPrix: ${annonce.price} Ar\nSurface: ${annonce.surface} m²\nType: ${annonce.type}',
-                    ),
-                    isThreeLine: true,
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.edit, color: Colors.blue),
-                          onPressed: () => modifierAnnonce(annonce),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.red),
-                          onPressed: () => supprimerAnnonce(annonce),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
+          );
+        },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
